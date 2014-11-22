@@ -1,0 +1,7 @@
+/.idea
+/.project
+/build/*.zip
+/build/jquery.guidget/*
+/jquery.guidget-*.js
+/projectFilesBackup/*
+/.tmp*

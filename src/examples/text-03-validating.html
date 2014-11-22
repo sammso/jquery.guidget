@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Guidget Text example 3</title>
+		<script type="text/javascript" src="../../thirdpty/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.core.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.list.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.text.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.radio.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.select.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.checkbox.js"></script>
+		<script type="text/javascript" src="../../thirdpty/json2.js"></script>		
+		<script type="text/javascript" src="../../thirdpty/jso-presenter.js"></script>			
+		<!-- here -->
+		<link rel="stylesheet" href="../css/jquery.guidget.css" type="text/css" media="all" />
+	<style type="text/css" media="screen">
+		label { width: 100px; float:left; background-color:white;}		
+		input { width: 200px; float:left;}
+		fieldset div {
+			clear:both;
+			padding-left: 25px;
+			height: 22px;
+		}
+		.valid { 
+			background:url('../images/logo.png') 0px 0px no-repeat;		
+		}
+		.invalid { 
+			background:url('../images/logo.png') -24px 0px no-repeat;		
+		}
+		.validating { 
+			background:url('../images/logo.png') -48px 0px no-repeat;		
+		}	
+		.error {
+			color: red;
+		}	
+	</style>		
+	<script type="text/javascript" language="javascript">	
+	var dataStorage = {
+		name: null,
+		min : null,
+		max : null
+	};
+	
+	var reservedNames = [
+		"Henry","James","John","Michael","Patrick","Robert","Shaun"
+	];
+	
+	var findName = function(name, callback) {
+		setTimeout(function(){
+			for( var i=0 ; i<reservedNames.length ; i++ ) {
+				if(reservedNames[i].toLowerCase().trim()===name.toLowerCase().trim()) {
+					callback(true);
+				}
+			}
+			callback(false);
+
+		},2000);
+	};
+	
+	
+	var validationMessage =function(result) {
+		this.query().parent().removeAttr("class");
+		if(result.code===guidget.validation.status.VALID) {
+			this.query().parent().addClass("valid");
+			this.query().parent().find(".error").empty();
+		}
+		else {
+			this.query().parent().addClass("invalid");
+			this.query().parent().find(".error").text(result.msg);			
+		}
+	};
+	
+	$(document).ready(function() {
+		var $textGuidget = $("input[name=name]").textGuidget({
+			object: dataStorage,
+			validate : function(value){
+				if (!value || value.length < 3) {
+					return guidget.validation.createResult( guidget.validation.status.INVALID, "Name field hast to be at least 2 chararchters long");
+				}
+				else {
+					findName(value, function(result) {
+						if (result) {
+							$textGuidget.setValidationResult(guidget.validation.createResult( guidget.validation.status.VALID ));
+						}
+						else {
+							$textGuidget.setValidationResult(guidget.validation.createResult( guidget.validation.status.INVALID ));
+						}
+					});
+					return guidget.validation.createResult( guidget.validation.status.VALIDATING );
+				}
+			},
+			validationMessage: validationMessage
+		});		
+		$("button[name=presenter]").click(function() {
+			$("#presenter").empty().append(jsopresenter.toString(dataStorage));
+		});
+		$("button[name=clear]").click(function() {
+			$("#presenter").empty();
+		});			
+	});
+	
+	</script>
+	</head>
+	<body>
+		<a href="index.html">Index</a>	
+		<h1>Guidget delayed validation example</h1>	
+		<fieldset>
+			<legend>Form</legend>
+			<div>
+				<label for="name">Name</label>
+				<input type="text" name="name" tabindex="1" />
+				<span class="error"></span>
+			</div>								
+		</fieldset>
+		<hr/>
+		<button name="presenter">Show data</button> | <button name="clear">Hide data</button>
+		<hr/>		
+		<div id="presenter"></div>			
+	</body>
+</html>

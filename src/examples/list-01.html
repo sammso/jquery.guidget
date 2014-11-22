@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>List guidget - editable list</title>
+		<script type="text/javascript" src="../../thirdpty/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.core.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.list.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.text.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.radio.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.select.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.checkbox.js"></script>
+		<script type="text/javascript" src="../../thirdpty/jso-presenter.js"></script>
+		<!-- here -->
+		<link rel="stylesheet" href="../css/jquery.guidget.css" type="text/css" media="all" />
+		<style type="text/css" media="screen">		
+				.list {
+					height:300px;
+					width:600px;
+					overflow-y:scroll;
+					border-width:1px 1px 1px 1px;
+				}
+				
+				.treeIntent {
+					margin-left: 10px;
+					width:100%;
+				}
+				
+				.info input {
+				}
+				
+				.list div:hover {
+					cursor: hand;
+				}
+				
+				.list .active {
+					background-color: red;
+				}
+				
+				.hover {
+					background-color: yellow;	
+				}
+
+                .selected {
+                    background-color: #bfc7ff;
+                }
+
+				table {
+					border-collapse: collapse;
+				}
+
+				table, th, td {
+					border: 1px solid black;
+				}
+
+				td {
+					vertical-align: top;
+				}
+	</style>
+	<script type="text/javascript" language="javascript">
+	
+	var cars = [
+	  { name : "Toyota",        airC: false,  color: "blue" },
+	  { name : "Audi",          airC: true,  color: "red" },
+	  { name : "Fisker Karma",  airC: false,  color: "brown" },
+	  { name : "Lada",          airC: false,  color: "white" }
+	];
+	
+	var colors = [ 
+	  {id:null, name:"<not selected>"},
+	  {id:"blue", name:"Blue"},
+	  {id:"red",  name:"Red"},
+	  {id:"brown",name:"Brown"},
+	  {id:"grey", name:"Grey"},
+	  {id:"green",name:"Green"},
+	  {id:"white",name:"White"}	  
+	];
+	
+	jQuery(document).ready(function() {
+
+		var $listGuidget = jQuery("#list").listGuidget(
+			{
+				rowTemplateHtml : "<div><a href=\"#\">Select</a> | <input type=\"text\" name=\"name\"/> : <input type=\"checkbox\" name=\"airC\"/> <select name=\"color\" /></div>",
+				rowRendered : function($row, rowObject, rowIndex) {
+					$("a", $row).click(function() {
+						$listGuidget.select($row);
+                        return false;
+					});
+					$("input[name=name]",$row).textGuidget({
+						object: rowObject
+						});
+				
+					$("input[name=airC]",$row).checkGuidget({
+						object: rowObject
+						});
+					$("select", $row).selectGuidget({
+						source: colors,
+						textReader: function(sourceRow){
+							return sourceRow.name;
+						},
+						field : "color",
+						object: rowObject,
+						converter :  function(sourceRow){ 
+							return sourceRow.id;
+						}						
+					});
+				},
+				rowSelection : function($row, isSelected) {
+					if(isSelected) {
+                        $row.addClass("selected");
+						removeButton$.removeAttr("disabled");
+						insertButton$.removeAttr("disabled");
+					}
+					else {
+                        $row.removeClass("selected");
+						removeButton$.attr("disabled","true");
+						insertButton$.attr("disabled","true");		
+					}
+				},
+				source: cars
+			}).guidget();
+		
+		$("button[name=addButton]").click(function() {
+			$listGuidget.add({name:"", airC: false, color: null },true);
+
+		});
+		var insertButton$ = $("button[name=insertButton]").click(function() {
+			var index = $listGuidget.getSelectedIndex();
+			if (index >= 0) {
+				$listGuidget.insert(
+					{name:"", airC: false, color: null}
+				, index, true);
+			}
+		});		
+		var removeButton$ =$("button[name=removeButton]").click(function(){
+			$listGuidget.remove();
+		});
+
+		$("button[name=presenter]").click(function() {
+			$("#presenter").empty().append(jsopresenter.toString(cars));
+			$("#colors").empty().append(jsopresenter.toString(colors));
+		});
+		$("button[name=clear]").click(function() {
+			$("#presenter").empty();
+			$("#colors").empty();
+		});
+	});
+	
+	</script>		
+	</head>
+	<body>
+		<a href="index.html">Index</a>
+		<h1>List guidget - editable list</h1>
+		<div id="list" class="list">
+		</div>	
+		<hr/>
+			<button type="button" name="addButton">Add</button> | <button type="button" name="insertButton" disabled="true">Insert</button> | <button type="button" name="removeButton" disabled="true">Remove</button><br/>
+		<hr/>
+
+		<button name="presenter">Show data</button> | <button name="clear">Hide data</button>
+		<h2>Javascript objects content</h2>
+		<table>
+			<thead><th>colors objects</th><th>cars objects</th></thead>
+			<tbody>
+			<tr><td id="colors"><!-- --></td><td id="presenter"><!-- --></td></tr>
+			</tbody>
+		</table>
+
+	</body>
+</html>

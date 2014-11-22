@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Guidget Popup test 1</title>
+		<script type="text/javascript" src="../../thirdpty/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.core.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.popup.js"></script>		
+		<script type="text/javascript" src="../../thirdpty/json2.js"></script>
+		<!-- here -->
+		<link rel="stylesheet" href="../css/jquery.guidget.css" type="text/css" media="all" />
+	<script type="text/javascript" language="javascript">	
+	jQuery(document).ready(function() {
+		$("button[name=close]",$("#messageBox")).click(function() {
+			$.popupClose();
+			return false;
+		});
+		
+		$("button[name=open]").click(function() {
+			$.popupOpen("#messageBox");
+			return false;
+		});
+	});
+		
+	</script>		
+	</head>
+	<body>
+		<a href="index.html">Index</a>		
+		<fieldset>
+			<label>messagebox</label>
+		<h1>Test</h1>			
+		<div id="messageBox" style="display:none;">
+			<fieldset>
+				<h1>Popup Title</h1>
+				<input type="text" value=""/>
+				<button type="button" name="close">Close</button>
+			</fieldset>
+		</div>
+		</fieldset>
+		<button type="button" name="open">Open</button>
+	</body>
+</html>

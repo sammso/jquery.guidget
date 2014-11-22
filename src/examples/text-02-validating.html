@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Guidget Text example 1</title>
+		<script type="text/javascript" src="../../thirdpty/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.core.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.list.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.text.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.radio.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.select.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.checkbox.js"></script>
+		<script type="text/javascript" src="../../thirdpty/json2.js"></script>		
+		<script type="text/javascript" src="../../thirdpty/jso-presenter.js"></script>			
+		<!-- here -->
+		<link rel="stylesheet" href="../css/jquery.guidget.css" type="text/css" media="all" />
+	<style type="text/css" media="screen">
+		label { width: 100px; float:left; background-color:white;}		
+		input { width: 200px; float:left;}
+		fieldset div {
+			clear:both;
+			padding-left: 25px;
+			height: 22px;
+		}
+		.valid { 
+			background:url('../images/logo.png') 0px 0px no-repeat;		
+		}
+		.invalid { 
+			background:url('../images/logo.png') -24px 0px no-repeat;		
+		}
+		.validating { 
+			background:url('../images/logo.png') -48px 0px no-repeat;		
+		}	
+		.error {
+			color: red;
+		}	
+	</style>		
+	<script type="text/javascript" language="javascript">	
+	var dataStorage = {
+		name: null,
+		min : null,
+		max : null
+	};
+	
+	var validationMessage =function(result) {
+		this.query().parent().removeAttr("class");
+		if(result.code===guidget.validation.status.VALID) {
+			this.query().parent().addClass("valid");
+			this.query().parent().find(".error").empty();
+		}
+		else {
+			this.query().parent().addClass("invalid");
+			this.query().parent().find(".error").text(result.msg);			
+		}
+	};
+	
+	var minMaxGroupValidator = guidget.validation.createGroupValidator(object, function(object) {
+		if(object.max > object.min) {
+			guidget.validation.createResult( guidget.validation.status.VALID );
+		}
+		else {
+			guidget.validation.createResult( guidget.validation.status.INVALID, "Maximun has to be larger than minimum" );
+		}
+	});
+	
+	$(document).ready(function() {
+		$("input[name=name]").textGuidget({
+			object: dataStorage,
+			validate : function(value){
+				if (!value || value.length < 3) {
+					return guidget.validation.createResult( guidget.validation.status.INVALID, "Name field hast to be at least 2 chararchters long");
+				}
+				else {
+					return guidget.validation.createResult( guidget.validation.status.VALID );
+				}
+			},
+			validationMessage: validationMessage
+		});
+		$("input[name=min]").textGuidget({
+			object: dataStorage,
+			Converter: guidget.NumberConverter,
+			decimal: 2
+		});
+		$("input[name=max]").textGuidget({
+			object: dataStorage,
+			Converter: guidget.NumberConverter,
+			decimal: 2
+		});			
+		$("button[name=presenter]").click(function() {
+			$("#presenter").empty().append(jsopresenter.toString(dataStorage));
+		});
+		$("button[name=clear]").click(function() {
+			$("#presenter").empty();
+		});			
+	});
+	
+	</script>
+	</head>
+	<body>
+		<a href="index.html">Index</a>		
+		<fieldset>
+			<legend>Form</legend>
+			<div>
+				<label for="name">Name</label>
+				<input type="text" name="name" tabindex="1" />
+				<span class="error"></span>
+			</div>
+			<div>
+				<label for="min">Min</label>
+				<input type="text" name="min"  tabindex="2"/>
+				<span class="error"></span>
+			</div>
+			<div>
+				<label for="max">Max</label>
+				<input type="text" name="max"  tabindex="3"/>
+				<span class="error"></span>
+			</div>								
+		</fieldset>
+		<hr/>
+		<button name="presenter">Show data</button> | <button name="clear">Hide data</button>
+		<hr/>		
+		<div id="presenter"></div>			
+	</body>
+</html>

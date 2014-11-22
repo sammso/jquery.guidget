@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * jQuery Guidget JavaScript Library
+ *
+ * Copyright (c) 2008-2009,
+ * jQuery.guidget team
+ *
+ * Licensed under the MIT license.
+ * http://www.guidget.org/licence.html
+ */
+-->
+<project name="Guidget" default="release" basedir=".">
+	<property name="project.dir" value="../"/>
+	<property name="build.dir" value="${project.dir}/build/"/>
+	<property name="demo.dir" value="${project.dir}/demos/"/>
+	<property name="src.dir" value="${project.dir}/src/"/>
+	<property name="css.src.dir" value="${src.dir}/css/"/>
+	<property name="javascript.src.dir" value="${src.dir}/javascript/"/>
+
+	<property name="guidget.version" value="0.9.0-SNAPSHOT"/>
+	<property name="guidget.core.files" value="jquery.guidget.core.js"/>
+
+	<property name="release.name" value="jquery.guidget" />
+	<property name="release.dir" value="${build.dir}/${release.name}/" />
+	<property name="guidget.dest.file" value="${release.dir}/demo/js/${release.name}-${guidget.version}.js" />
+	
+	
+	<property name="yui.compressor.file" value="yuicompressor-2.4.2.jar" />
+	<property name="yui.compressor.path" value="${build.dir}/lib/${yui.compressor.file}" />
+	
+	<property name="closure.compiler.file" value="compiler.jar" />	
+	<property name="closure.compiler.path" value="${build.dir}/lib/${closure.compiler.file}" />
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="${build.dir}/lib/ant-contrib-0.6.jar"/>
+		</classpath>
+	</taskdef>
+
+	<target name="clean">
+		<delete dir="${release.dir}" />
+		<delete file="${build.dir}/${release.name}-${guidget.version}.zip" />
+	</target>
+
+
+	<target name="whitespace">
+		<echo>Removing trailing spaces of the source files.</echo>
+		<replaceregexp match="[\t ]+$" replace="" flags="g" byline="true">
+			<fileset dir="${javascript.src.dir}" includes="*.js"/>
+		</replaceregexp>
+	</target>
+
+	<target name="create-demo">
+		<echo>Clearing Javascript</echo>
+		<copy todir="${release.dir}/demo">
+			<fileset dir="${release.dir}/src/examples">
+				<include name="*.html" />
+			</fileset>
+		</copy>
+		<copy todir="${release.dir}/demo/css">
+			<fileset dir="${release.dir}/src/css">
+				<include name="*.css" />
+			</fileset>
+		</copy>			
+		<copy todir="${release.dir}/demo/js">
+			<fileset dir="${build.dir}/minified">
+				<include name="*.js" />
+			</fileset>
+		</copy>			
+	
+		<replaceregexp match=".*[&lt;]script.*jquery[.]guidget.*[&lt;][/]script[&gt;].*\n" replace="" flags="g" byline="false">
+			<fileset dir="${release.dir}/demo/" includes="*.html"/>
+		</replaceregexp>													
+		<replaceregexp match="[.][.].*/thirdpty" replace="js" flags="g" byline="true">
+			<fileset dir="${release.dir}/demo/" includes="*.html"/>
+		</replaceregexp>
+		<replaceregexp match="[.]js[&quot;]" replace="-min.js&quot;" flags="g" byline="true">
+			<fileset dir="${release.dir}/demo/" includes="*.html"/>
+		</replaceregexp>
+		<replaceregexp match="[&quot;][.].*/css/" replace="&quot;css/" flags="g" byline="true">
+			<fileset dir="${release.dir}/demo/" includes="*.html"/>
+		</replaceregexp>
+		<replaceregexp match="[.]css[&quot;]" replace="-min.css&quot;" flags="g" byline="true">
+			<fileset dir="${release.dir}/demo/" includes="*.html"/>
+		</replaceregexp>				
+		<replaceregexp match="[&lt;][!][-][-]+.here+.[-][-][&gt;]" replace="&lt;script type=&quot;text/javascript&quot; src=&quot;js/${release.name}-${guidget.version}-min.js&quot;&gt;&lt;/script&gt;" flags="g" byline="true">
+			<fileset dir="${release.dir}/demo/" includes="*.html"/>
+		</replaceregexp>
+	</target>
+
+	<target name="release" depends="clean, init-release, create-demo, minify, zip" />
+
+
+	<target name="init-release" depends="clean, whitespace">
+		<echo>Preparing files and folders for release.</echo>
+
+		<copy todir="${release.dir}">
+			<fileset dir="${project.dir}">
+				<include name="src/**" />
+			</fileset>
+		</copy>
+
+		<copy todir="${release.dir}">
+            <filelist dir="${project.dir}/" files="version.txt" />
+        </copy>
+		<replaceregexp match="@VERSION" replace="${guidget.version}" flags="g" byline="true">
+            <fileset dir="${release.dir}/src/" includes="**/*.js, **/*.css, **/*.txt"/>
+        </replaceregexp>
+	</target>
+
+	<target name="concatenate" depends="init-release">
+		<echo>Concatenating JavaScript files. ${release.name}.js</echo>
+		<mkdir dir="${release.dir}/demo/js/"/>
+		<delete file="${guidget.dest.file}"/>
+
+		<concat destfile="${guidget.dest.file}">
+	        <filelist dir="${release.dir}/src/javascript/" files="${guidget.core.files}"/>
+	        <fileset dir="${release.dir}/src/javascript/" includes="*.js" excludes="${guidget.core.files}"/>
+	    </concat>
+	</target>
+
+
+	<target name="zip" depends="minify">
+		<echo>Creating Zip file ${release.name}.zip</echo>
+
+		<zip basedir="${release.dir}" destfile="${build.dir}/${release.name}-${guidget.version}.zip" />
+	</target>
+
+
+	<target name="minify" depends="minify-javascript, minify-css" />
+
+
+	<target name="minify-javascript" depends="concatenate">
+		<echo>Minifying JavaScript files.</echo>
+
+		<apply executable="java" parallel="false">
+			<fileset dir="${release.dir}/demo/js/" includes="*.js" />
+			<arg line="-jar" />
+			<arg path="${yui.compressor.path}" />
+			<arg value="--charset"/>
+            <arg value="UTF-8"/>
+			<srcfile/>
+			<arg line="-o" />
+			<mapper type="glob" from="*.js" to="${release.dir}/demo/js/*-min.js" />
+			<targetfile/>
+		</apply>
+		<delete file="${guidget.dest.file}"/>
+	</target>
+	
+	<target name="cminify-javascript" depends="concatenate">
+		<echo>Minifying JavaScript files.</echo>
+
+		<apply executable="java" parallel="false">
+			<fileset dir="${release.dir}/demo/js/" includes="*.js" />
+			<arg line="-jar" />
+			<arg path="${closure.compiler.path}" />
+			<arg value="--charset"/>
+            <arg value="UTF-8"/>
+			<srcfile/>
+			<arg line="-o" />
+			<mapper type="glob" from="*.js" to="${release.dir}/demo/js/*-min.js" />
+			<targetfile/>
+		</apply>
+		<delete file="${guidget.dest.file}"/>
+	</target>	
+
+
+	<target name="minify-css" depends="concatenate">
+		<echo>Minifying CSS files.</echo>
+		<apply executable="java" parallel="false">
+			<fileset dir="${release.dir}/demo/css/" includes="*.css" />
+			<arg line="-jar" />
+			<arg path="${yui.compressor.path}" />
+			<arg value="--charset"/>
+            <arg value="UTF-8"/>
+			<srcfile/>
+			<arg line="-o" />
+			<mapper type="glob" from="*.css" to="${release.dir}/demo/css/*-min.css" />
+			<targetfile/>
+		</apply>
+	</target>
+</project>

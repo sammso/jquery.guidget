@@ -1,0 +1,86 @@
+/**
+ * jQuery Guidget JavaScript Library
+ *
+ * Copyright (c) 2008-2009,
+ * jQuery.guidget team
+ *
+ * Licensed under the MIT license.
+ * http://www.guidget.org/licence.html
+ */
+#jgHtmlBoxOverlay {
+	position: fixed;
+	z-index:100;
+	top: 0px;
+	left: 0px;
+	height:100%;
+	width:100%;
+}
+
+.jgHtmlBoxOverlayMacFFBGHack {background: url(macFFBgHack.png) repeat;}
+.jgHtmlBoxOverlayBG {
+	background-color:#000000;
+	filter:alpha(opacity=75);
+	-moz-opacity: 0.75;
+	opacity: 0.75;
+}
+
+* html #jgHtmlBoxOverlay {
+     position: absolute;
+     height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
+}
+
+.jgHtmlBoxWindow {
+	position: fixed;
+	z-index: 102;
+	display:none;
+	text-align:left;
+	background-color:#ffffff;
+}
+
+#jgHtmlBoxWindowIE6Margin {}
+
+.jgHtmlBoxWindowIE6 {
+	position: absolute;
+	z-index: 102;
+	display:none;
+	text-align:left;	
+	top: 30%;
+	left: 30%;	
+	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (jgHtmlBoxWindowIE6Margin = document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
+}
+
+
+
+
+#jgHtmlBoxHideSelect{
+	z-index:99;
+	position:fixed;
+	top: 0;
+	left: 0;
+	background-color:#fff;
+	border:none;
+	filter:alpha(opacity=0);
+	-moz-opacity: 0;
+	opacity: 0;
+	height:100%;
+	width:100%;
+}
+
+* html #jgHtmlBoxHideSelect { /* ie6 hack */
+     position: absolute;
+     height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
+}
+
+#jgLog {
+	position:fixed;
+	height: 200px;	
+}
+#jgLog p {
+	font-family:Fixedsys;
+	font-size: small;
+}
+
+#jgLog p span {
+	font-weight:bold;
+	width:30px;
+}

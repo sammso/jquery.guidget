@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>List guidget - editable tree</title>
+		<script type="text/javascript" src="../../thirdpty/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.core.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.list.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.text.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.radio.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.select.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.checkbox.js"></script>
+		<script type="text/javascript" src="../../thirdpty/jso-presenter.js"></script>
+		<!-- here -->
+		<link rel="stylesheet" href="../css/jquery.guidget.css" type="text/css" media="all" />
+	<style type="text/css" media="screen">
+			.list {
+				height:300px;
+				width:600px;
+				overflow-y:scroll;
+				border:1px 1px 1px 1px;
+			}
+			
+			.treeIntent {
+				margin-left: 10px;
+				width:100%;
+			}
+			
+			.info input {
+			}
+			
+			.list div:hover {
+				cursor: hand;
+			}
+			table {
+				border-collapse: collapse;
+			}
+
+			table, th, td {
+				border: 1px solid black;
+			}
+
+			td {
+				vertical-align: top;
+			}
+	</style>		
+	<script type="text/javascript" language="javascript">
+	var colors = [
+		{id:null, name:"<not selected>"},
+		{id:"blue", name:"Blue"},
+		{id:"red",  name:"Red"},
+		{id:"brown",name:"Brown "},
+		{id:"grey", name:"Greys "},
+		{id:"green",name:"Green"},
+		{id:"white",name:"White"}
+	];	
+	
+	var tree = [{ 
+			id: 1, 
+			name: "hello A",
+			color: undefined,
+			childs : [
+				{ 
+					id: 2, 
+					name: "hello AA",
+					color: "white",
+					childs : [
+						{ 
+							id: 3, 
+							name: "hello AAA",
+							color: "red"
+						},
+						{ 
+							id: 4, 
+							name: "hello AAB",
+							color: null
+						},
+						{ 
+							id: 5, 
+							name: "hello AAC",
+							color: "not-listed-at-colors"
+						},
+						{ 
+							id: 6, 
+							name: "hello AAD",
+							color: "grey"
+						}																		
+					]
+				},{ 
+					id: 7, 
+					name: "hello AB",
+					color: "brown",					
+					childs : [
+						{ 
+							id: 8, 
+							name: "hello ABA",
+							color: "white"
+						},
+						{ 
+							id: 9, 
+							name: "hello ABB",
+							color: "white"
+						},
+						{ 
+							id: 10, 
+							name: "hello ABC",
+							color: "red"
+						},
+						{ 
+							id: 11, 
+							name: "hello ABD",
+							color: "grey"
+						}																		
+					]
+				}	
+			]
+		},{ 
+			id: 12, 
+			name: "hello B",
+			color: "red",			
+			childs : [
+				{ 
+					id: 13, 
+					name: "hello BA",
+					color: "white",					
+					childs : [
+						{ 
+							id: 14, 
+							name: "hello BAA",
+							color: "white"
+						}																	
+					]
+				},
+				{ 
+					id: 15, 
+					name: "hello BB",
+					color: "brown",					
+					childs : [
+						{ 
+							id: 16, 
+							name: "hello BBA",
+							color: "red"
+						},
+						{ 
+							id: 17, 
+							name: "hello BBB",
+							color: "grey"
+						}																		
+					]
+				}	
+			]
+		},{ 
+			id: 18, 
+			name: "hello C",
+			color: "red"			
+		}		
+	];
+
+	var ROWTMPL_CHILDS = "<div class=\"info\">[<a href=\"\">+</a>] <input type=\"text\" name=\"name\"/><select name=\"color\"></select></div><div class=\"childs\"></div>";
+	var ROWTMPL_NOCHILDS = "<div class=\"info\">[ ]<input type=\"text\" name=\"name\"/><select name=\"color\"></select></div>";
+
+	var treeOptionsCreator = function(levelList) {
+		return {
+			rowTemplateHtml: "<div class=\"treeIntent\"></div>",
+			rowRendered : function($row, rowObject, rowIndex) {
+					if(rowObject.childs) {
+						$row.append(ROWTMPL_CHILDS);
+						$row.find("a").click(function(){
+							if ($(this).text() === "+") {
+								$(this).text("-");
+								$row.find(".childs").listGuidget(treeOptionsCreator(rowObject.childs));
+							}
+							else {
+								$(this).text("+");
+								$row.find(".childs").empty();
+							}
+							return false;
+						});
+						$row.click(function() {
+							$row.select($row);
+						});
+					}
+					else {
+						$row.append(ROWTMPL_NOCHILDS);
+							
+					}
+					$row.find("input[name=name]").textGuidget({
+						object: rowObject
+					});					
+					$row.find("select").selectGuidget({
+						source: colors,
+						textReader: function(dataRow){
+							return dataRow.name;
+						},
+						field : "color",
+						object: rowObject,
+						converter :  function(sourceRow){ 
+							return sourceRow.id;
+						}						
+					});
+				},	
+				source: levelList
+		};
+	};
+	
+	$(document).ready(function() {
+		$("#tree").listGuidget(treeOptionsCreator(tree));
+		$("button[name=presenter]").click(function() {
+			$("#presenter").empty().append(jsopresenter.toString(tree));
+			$("#colors").empty().append(jsopresenter.toString(colors));
+		});
+		$("button[name=clear]").click(function() {
+			$("#presenter").empty();
+		});		
+	});
+	
+	</script>		
+	</head>
+	<body>
+		<a href="index.html">Index</a>		
+		<h1>List guidget - editable tree</h1>
+		<div>
+			<div id="tree" class="list">
+			</div>		
+		</div>
+		<button name="presenter">Show data</button> | <button name="clear">Hide data</button>
+		<h2>Javascript objects content</h2>
+		<table>
+			<thead><th>color objects</th><th>tree objects</th></thead>
+			<tbody>
+				<tr><td id="colors"><!-- --></td><td id="presenter"><!-- --></td></tr>
+			</tbody>
+		</table>
+	</body>
+</html>

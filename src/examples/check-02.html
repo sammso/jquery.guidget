@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Check Guidget example 2</title>
+		<script type="text/javascript" src="../../thirdpty/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="../javascript/jquery.guidget.core.js"></script>		
+		<script type="text/javascript" src="../javascript/jquery.guidget.checkbox.js"></script>		
+		<script type="text/javascript" src="../../thirdpty/json2.js"></script>
+		<!-- here -->
+		<link rel="stylesheet" href="../css/jquery.guidget.css" type="text/css" media="all" />
+	<script type="text/javascript" language="javascript">	
+	var array = [
+		{ value : "YES" },
+		{ value : "NO" },
+		{ value : "YES" },
+		{ value : "NO" },				
+		{ value : "NO" }								
+	];
+	
+	jQuery(document).ready(function() {
+		var counter=0;
+		$("input[type=checkbox]",$("#list")).each(function(){
+			$(this).checkGuidget({
+				checked: "YES",
+				unChecked : "NO",
+				object: array[counter],
+				field : "value"
+			});
+			counter++;
+		});		
+		$("button[name=jsonButton]").click(function() {
+			$("#json").empty().append(JSON.stringify(array))
+		});		
+	});
+	
+
+	</script>		
+	</head>
+	<body>
+		<a href="index.html">Index</a>		
+		<h1>Check Guidget example 2</h1>
+		<div id="list">
+			<div><input type="checkbox" name="checkFieldValue" value="1"/></div>			
+			<div><input type="checkbox" name="checkFieldValue" value="2"/></div>
+			<div><input type="checkbox" name="checkFieldValue" value="3"/></div>
+			<div><input type="checkbox" name="checkFieldValue" value="4"/></div>
+			<div><input type="checkbox" name="checkFieldValue" value="5"/></div>
+		</div>	
+
+		<hr/>
+		<button name="jsonButton">Json button</button>
+		<div id="json"></div>	
+
+	</body>
+</html>
